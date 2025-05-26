@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyectos de Vivienda</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f4f4; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .proyecto {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .proyecto h2 { margin-top: 0; color: #2980b9; }
+    </style>
+</head>
+<body>
+    <h1>Lista de Proyectos de Vivienda</h1>
+
+    {% for proyecto in proyectos %}
+    <div class="proyecto">
+        <h2>{{ proyecto.nombre }}</h2>
+        <p><strong>Ciudad:</strong> {{ proyecto.ciudad }}</p>
+        <p><strong>Programa:</strong> {{ proyecto.programa }}</p>
+        <p><strong>Precio:</strong> S/ {{ proyecto.precio }}</p>
+        <p><strong>Requisitos:</strong> {{ proyecto.requisitos }}</p>
+        <p><strong>Contacto:</strong> {{ proyecto.contacto }}</p>
+    </div>
+    {% empty %}
+    <p>No hay proyectos disponibles actualmente.</p>
+    {% endfor %}
+</body>
+</html>
