@@ -1,0 +1,1154 @@
+/* Custom styles to complement Bootstrap */
+
+/* Smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom styling for the carousel */
+.carousel .reel::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animation for the header button */
+.button.circled {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Custom Header Background and Text */
+#header.custom-header-bg {
+  background-color: #204b5e; /* Color1: Dark blue-green for header background */
+}
+
+#header.custom-header-text {
+  color: #fdfac7; /* Color5: Very light cream for general text in header */
+}
+
+/* Navbar specific styling */
+.custom-navbar-styles {
+  background-color: #204b5e !important; /* Color1: Ensure Navbar background is consistent */
+  border-bottom: 1px solid rgba(253, 250, 199, 0.1); /* Subtle separator */
+}
+
+/* Navbar Brand (Logo/House Icon and Text) */
+.custom-navbar-brand {
+  color: #fdfac7 !important; /* Color5: Light cream for brand text */
+  font-weight: bold;
+}
+
+.custom-house-icon {
+  color: #fbea80; /* Color4: Soft yellow for the house icon */
+}
+
+.custom-logo-text {
+  color: #fdfac7 !important; /* Color5: Ensure logo text is light */
+}
+
+/* Main Navigation Links (Proyectos, Menú, etc.) */
+.custom-nav-links .nav-link {
+  color: #fdfac7 !important; /* Color5: Light cream for default link text */
+  font-weight: 500;
+  padding: 0.5rem 1rem; /* Adjust padding as needed */
+  transition: color 0.2s ease;
+}
+
+.custom-nav-links .nav-link:hover,
+.custom-nav-links .nav-link:focus {
+  color: #fbea80 !important; /* Color4: Soft yellow on hover/focus */
+}
+
+/* Dropdown Menu */
+.custom-nav-dropdown .dropdown-toggle {
+  color: #fdfac7 !important; /* Color5: Light cream for dropdown toggle */
+}
+
+.custom-nav-dropdown .dropdown-menu {
+  background-color: #204b5e !important; /* Color1: Dark background for dropdown */
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-nav-dropdown .custom-dropdown-item {
+  color: #fdfac7 !important; /* Color5: Light cream for dropdown items */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.custom-nav-dropdown .custom-dropdown-item:hover,
+.custom-nav-dropdown .custom-dropdown-item:focus {
+  background-color: #426b65 !important; /* Color2: Green-grey on hover */
+  color: #fdfac7 !important; /* Keep text light on hover */
+}
+
+.custom-nav-dropdown .custom-dropdown-divider {
+  background-color: rgba(253, 250, 199, 0.2) !important; /* Color5 with opacity for divider */
+}
+
+/* Search Bar */
+.custom-search-form {
+  margin-left: 1rem; /* Space from nav links */
+  margin-right: 1rem; /* Space from auth links */
+}
+
+.custom-search-input {
+  background-color: rgba(253, 250, 199, 0.15) !important; /* Semi-transparent Color5 */
+  border: 1px solid rgba(253, 250, 199, 0.3) !important; /* Lighter border */
+  color: #fdfac7 !important; /* Color5: Light text for input */
+}
+
+.custom-search-input::placeholder {
+  color: rgba(253, 250, 199, 0.7) !important; /* Lighter placeholder text */
+}
+
+.custom-search-input:focus {
+  background-color: rgba(253, 250, 199, 0.25) !important;
+  border-color: #fbea80 !important; /* Color4: Yellow border on focus */
+  box-shadow: 0 0 0 0.25rem rgba(251, 234, 128, 0.25) !important; /* Light yellow shadow on focus */
+}
+
+.custom-search-button {
+  background-color: #baab6a !important; /* Color3: Aged gold for search button */
+  border-color: #baab6a !important;
+  color: #204b5e !important; /* Color1: Dark text for search icon */
+  transition: all 0.2s ease;
+}
+
+.custom-search-button:hover {
+  background-color: #fbea80 !important; /* Color4: Soft yellow on hover */
+  border-color: #fbea80 !important;
+  color: #204b5e !important; /* Keep dark text on hover */
+}
+
+/* Login/Register Links */
+.custom-auth-links .custom-auth-link {
+  color: #fdfac7 !important; /* Color5: Light cream for auth links */
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s ease;
+  display: flex; /* For icon alignment */
+  align-items: center;
+}
+
+.custom-auth-links .custom-auth-link:hover,
+.custom-auth-links .custom-auth-link:focus {
+  color: #fbea80 !important; /* Color4: Soft yellow on hover/focus */
+}
+
+/* Adjustments for the main header text (Proyecto Viviendas slogan) */
+#logo-main { /* Changed ID to avoid conflict with brand logo */
+  color: #fdfac7 !important; /* Color5 */
+}
+
+.inner header .lead {
+  color: #fdfac7 !important; /* Color5 */
+  opacity: 0.8;
+}
+
+.custom-divider {
+  background-color: #baab6a !important; /* Color3 */
+  border: none;
+  height: 2px;
+}
+
+/* Responsive Adjustments for Navbar items on smaller screens */
+@media (max-width: 991.98px) { /* Adjusts for 'lg' breakpoint and below */
+  .custom-search-form {
+    width: 100%; /* Full width on smaller screens */
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .custom-auth-links {
+    width: 100%;
+    justify-content: center; /* Center auth links on small screens */
+    flex-direction: row; /* Keep them in a row */
+  }
+  .custom-nav-links {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+/* Styling for the "Aquí" button */
+#banner footer {
+  display: flex; /* Make the footer a flex container */
+  justify-content: center; /* Center its direct children horizontally */
+  align-items: center; /* Center its direct children vertically (if height allows) */
+  margin-top: 2rem; /* Add some top margin to separate it from the paragraph above */
+}
+
+/* Existing button styles (no changes needed here for centering) */
+.button.circled {
+  background-color: #fbea80 !important;
+  color: #204b5e !important;
+  border-color: #fbea80 !important;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.button.circled:hover {
+  background-color: #baab6a !important;
+  border-color: #baab6a !important;
+  color: #204b5e !important;
+  transform: scale(1.1);
+}
+
+/* Banner section styling */
+#banner {
+  background: linear-gradient(0deg, #426b65);
+
+}
+/* Overall Carousel Section */
+.carousel {
+  background-color: #fdfac7; /* Color5: Very light cream for the section background */
+  padding-top: 3rem; /* Adjust padding as needed */
+  padding-bottom: 3rem; /* Adjust padding as needed */
+}
+
+/* Heading for "Proyectos de Vivienda" */
+.carousel h2.h3.text-primary {
+  color: #204b5e; /* Color1: Dark blue-green for the main heading */
+}
+
+/* Navigation Buttons (Chevron Left/Right) */
+.carousel .btn.rounded-circle {
+  background-color: #baab6a !important; /* Color3: Aged gold for button background */
+  border-color: #baab6a !important; /* Match border to background */
+  color: #204b5e !important; /* Color1: Dark text for the chevron icons */
+  transition: all 0.3s ease; /* Smooth transition for hover */
+}
+
+.carousel .btn.rounded-circle:hover {
+  background-color: #fbea80 !important; /* Color4: Soft yellow on hover */
+  border-color: #fbea80 !important;
+  color: #204b5e !important; /* Keep dark text on hover */
+}
+
+/* Carousel Reel (Container for cards) */
+.reel {
+  /* Hide scrollbar for a cleaner look */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  /* For Webkit browsers (Chrome, Safari), you'll need a custom scrollbar styling in a separate block */
+}
+
+.reel::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Webkit */
+}
+
+/* Individual Project Cards */
+.carousel .card {
+  background-color: #fdfac7; /* Color5: Light cream for card background */
+  border: 1px solid #e0e0e0; /* Subtle light grey border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  transition: transform 0.2s ease-in-out; /* Smooth transition for hover effect */
+}
+
+.carousel .card:hover {
+  transform: translateY(-5px); /* Lift card slightly on hover */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+}
+
+/* Card Image */
+.carousel .card-img-top {
+  border-bottom: 1px solid #fdfac7; /* Match border to card background for a clean look */
+}
+
+/* Card Body */
+.carousel .card-body {
+  padding: 1.25rem; /* Standard Bootstrap padding */
+}
+
+/* Card Subtitle (Region name) */
+.carousel .card-subtitle.text-primary {
+  color: #426b65 !important; /* Color2: Green-grey for the region */
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* Card Title (Project name) */
+.carousel .card-title a {
+  color: #204b5e !important; /* Color1: Dark blue-green for the project title */
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.carousel .card-title a:hover {
+  color: #baab6a !important; /* Color3: Aged gold on hover for elegance */
+}
+
+/* Card Text (Description) */
+.carousel .card-text.text-muted {
+  color: #426b65 !important; /* Color2: Green-grey for the description */
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+/* Main Content Styles */
+        .main-content-section {
+          background-color: #fdfac7;
+        }
+
+        .custom-main-image {
+          max-height: 400px;
+          object-fit: cover;
+          width: 100%;
+        }
+
+        .custom-main-title-link {
+          color: #204b5e !important;
+          font-weight: 700;
+        }
+
+        .custom-main-title-link:hover {
+          color: #baab6a !important;
+        }
+
+        .custom-main-text {
+          color: #204b5e;
+        }
+
+        .custom-main-button {
+          background-color: #204b5e !important;
+          border-color: #204b5e !important;
+          color: #fdfac7 !important;
+          font-weight: bold;
+          padding: 0.75rem 2rem;
+          transition: all 0.3s ease;
+        }
+
+        .custom-main-button:hover {
+          background-color: #baab6a !important;
+          border-color: #baab6a !important;
+          transform: translateY(-2px);
+        }
+
+        /* Projects Section Styles */
+        .projects-section {
+          background-color: #ffffff;
+          border-radius: 1rem;
+          padding: 2rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+          color: #204b5e;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .section-subtitle {
+          color: #666;
+          font-size: 1.1rem;
+        }
+
+        /* Search Card Styles */
+        .search-card {
+          background-color: #f8f9fa;
+          border: 1px solid #e0e0e0;
+          border-radius: 0.75rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-label {
+          color: #204b5e;
+          font-weight: 600;
+          font-size: 0.875rem;
+          margin-bottom: 0.5rem;
+          display: flex;
+          align-items: center;
+        }
+
+        .search-icon-group {
+          background-color: #204b5e;
+          border-color: #204b5e;
+          color: #ffffff;
+        }
+
+        .search-input,
+        .filter-input,
+        .filter-select {
+          border: 1px solid #ccc;
+          border-radius: 0.375rem;
+          padding: 0.5rem 0.75rem;
+          transition: all 0.3s ease;
+        }
+
+        .search-input:focus,
+        .filter-input:focus,
+        .filter-select:focus {
+          border-color: #fbea80;
+          box-shadow: 0 0 0 0.25rem rgba(251, 234, 128, 0.25);
+        }
+
+        .clear-filters-btn {
+          border-color: #6c757d;
+          color: #6c757d;
+          transition: all 0.3s ease;
+        }
+
+        .clear-filters-btn:hover {
+          background-color: #6c757d;
+          border-color: #6c757d;
+          color: #ffffff;
+        }
+
+        /* Results Styles */
+        .results-summary {
+          padding: 1rem 0;
+          border-bottom: 1px solid #e0e0e0;
+        }
+
+        .results-text {
+          color: #666;
+          margin: 0;
+          font-size: 0.95rem;
+        }
+
+        /* Project Card Styles */
+        .project-card {
+          border: 1px solid #e0e0e0;
+          border-radius: 0.75rem;
+          transition: all 0.3s ease;
+          overflow: hidden;
+        }
+
+        .project-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-card-header {
+          background-color: #204b5e;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 1rem;
+        }
+
+        .project-title {
+          color: #ffffff;
+          font-size: 1.1rem;
+          font-weight: 600;
+          line-height: 1.3;
+        }
+
+        .project-card-body {
+          padding: 1.25rem;
+        }
+
+        .project-description {
+          color: #555;
+          font-size: 0.95rem;
+          line-height: 1.5;
+          margin-bottom: 1rem;
+        }
+
+        .project-details {
+          space-y: 0.75rem;
+        }
+
+        .detail-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.75rem;
+          font-size: 0.9rem;
+        }
+
+        .detail-icon {
+          color: #baab6a;
+          margin-right: 0.5rem;
+          flex-shrink: 0;
+        }
+
+        .detail-text {
+          color: #666;
+        }
+
+        .detail-label {
+          color: #204b5e;
+          font-weight: 600;
+          margin-right: 0.5rem;
+          min-width: 80px;
+        }
+
+        .detail-value {
+          color: #555;
+        }
+
+        .detail-value.budget {
+          color: #28a745;
+          font-weight: 600;
+        }
+
+        .project-card-footer {
+          background-color: #f8f9fa;
+          border-top: 1px solid #e0e0e0;
+          padding: 0.75rem 1.25rem;
+        }
+
+        .view-project-btn {
+          border-color: #204b5e;
+          color: #204b5e;
+          font-size: 0.875rem;
+          transition: all 0.3s ease;
+        }
+
+        .view-project-btn:hover {
+          background-color: #204b5e;
+          border-color: #204b5e;
+          color: #ffffff;
+        }
+
+        /* No Results Styles */
+        .no-results-card {
+          border: 2px dashed #e0e0e0;
+          background-color: #f8f9fa;
+        }
+
+        .no-results-icon {
+          color: #ccc;
+        }
+
+        .no-results-title {
+          color: #666;
+          margin-bottom: 0.5rem;
+        }
+
+        .no-results-text {
+          color: #999;
+          margin: 0;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+          .projects-section {
+            padding: 1rem;
+          }
+
+          .section-title {
+            font-size: 1.5rem;
+          }
+
+          .search-card .row {
+            gap: 1rem;
+          }
+
+          .clear-filters-btn {
+            margin-top: 1rem;
+          }
+
+          .project-title {
+            font-size: 1rem;
+          }
+        }
+/* Overall Features Section */
+.wrapper.bg-light {
+  background-color: #fdfac7 !important; /* Color5: Very light cream for the section background */
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+/* Section Header */
+#features header {
+  margin-bottom: 3rem; /* Adjust space below header */
+}
+
+/* "Nuestros Servicios" Heading */
+#features h2.display-5.text-primary {
+  color: #204b5e !important; /* Color1: Dark blue-green for the main heading */
+  font-weight: 700; /* Make it bold */
+}
+
+/* Header Description Paragraph */
+#features p.lead.text-muted {
+  color: #426b65 !important; /* Color2: Green-grey for the lead paragraph text */
+  font-size: 1.15rem; /* Slightly larger for readability */
+  line-height: 1.6;
+}
+
+/* Individual Feature Cards */
+#features .card {
+  background-color: #fdfac7; /* Color5: Light cream for card background */
+  border: 1px solid #e0e0e0; /* Subtle light grey border */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Soft shadow for depth */
+  border-radius: 0.5rem; /* Slightly rounded corners */
+  overflow: hidden; /* Ensures image corners match card */
+}
+
+/* Hover effect for cards */
+#features .card.hover-lift {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+#features .card.hover-lift:hover {
+  transform: translateY(-8px); /* Lifts card slightly on hover */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+}
+
+/* Card Image */
+#features .card-img-top {
+  height: 200px; /* Fixed height for consistency */
+  object-fit: cover; /* Ensures images fill the space without distortion */
+  border-bottom: 1px solid #f2f2f2; /* A very subtle separator from body */
+}
+
+/* Card Body */
+#features .card-body {
+  padding: 1.5rem; /* Generous padding inside card body */
+}
+
+/* Card Title (Service Name) */
+#features .card-title.h4.text-primary a {
+  color: #204b5e !important; /* Color1: Dark blue-green for the service title */
+  font-weight: 600; /* Slightly bold for titles */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+#features .card-title.h4.text-primary a:hover {
+  color: #baab6a !important; /* Color3: Aged gold on hover for elegance */
+}
+
+/* Card Text (Description) */
+#features .card-text.text-muted {
+  color: #426b65 !important; /* Color2: Green-grey for the description text */
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+/* Footer General */
+#footer-section.footer-custom-bg {
+  background-color: #204b5e; /* Color1: Azul verdoso oscuro para el fondo del footer */
+  color: #fdfac7; /* Color5: Crema muy claro para el texto general del footer */
+}
+
+/* Títulos de las Columnas del Footer */
+.footer-heading {
+  color: #fbea80; /* Color4: Amarillo suave/Pastel para los títulos de sección (Contáctanos, Enlaces Rápidos, Síguenos) */
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+/* Lista de Enlaces (Contacto y Navegación) */
+.footer-link-list li {
+  margin-bottom: 0.75rem; /* Espacio entre los elementos de la lista */
+}
+
+.footer-link-list a.footer-link {
+  color: #fdfac7; /* Color5: Crema muy claro para los enlaces por defecto */
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex; /* Para alinear el ícono y el texto */
+  align-items: center;
+}
+
+.footer-link-list a.footer-link:hover {
+  color: #baab6a; /* Color3: Dorado envejecido/Oliva en hover */
+}
+
+/* Dirección (sin enlace) */
+.footer-address {
+  color: #fdfac7; /* Color5: Crema muy claro para la dirección */
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+/* Iconos de Redes Sociales */
+.social-icons-list .list-inline-item a {
+  color: #fdfac7; /* Color5: Crema muy claro para los íconos */
+  transition: color 0.2s ease;
+  display: inline-flex; /* Asegura que el ícono esté bien centrado */
+  align-items: center;
+  justify-content: center;
+}
+
+.social-icons-list .list-inline-item a:hover {
+  color: #fbea80; /* Color4: Amarillo suave/Pastel en hover */
+}
+
+/* Línea Divisoria */
+.footer-divider {
+  border-top: 1px solid rgba(253, 250, 199, 0.2); /* Color5 con 20% de opacidad para el separador */
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Texto de Copyright */
+.footer-copyright-text {
+  color: #fdfac7; /* Color5: Crema muy claro para el copyright */
+  font-size: 0.85rem;
+  opacity: 0.7; /* Ligeramente más sutil */
+}
+
+/* Slogan/Tagline en Redes Sociales */
+.footer-tagline {
+  color: #baab6a; /* Color3: Dorado envejecido/Oliva para el tagline */
+  font-size: 0.95rem;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* Media Queries para Responsividad (ejemplo) */
+@media (max-width: 767.98px) {
+  #footer-section .text-md-start {
+    text-align: center !important; /* Centra el texto en móviles */
+  }
+}
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Custom navbar styling */
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  color: #fff;
+}
+        /* Login Page Wrapper */
+        .login-page-wrapper {
+          background-color: #fdfac7;
+          min-height: 100vh;
+        }
+
+        /* Login Card */
+        .login-card {
+          background-color: #204b5e !important;
+          border: 1px solid #e0e0e0;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+          border-radius: 0.75rem;
+          max-width: 450px;
+          width: 100%;
+        }
+
+        /* Home Button */
+        .home-button {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: transparent;
+          color: #baab6a;
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #fbea80;
+        }
+
+        /* Login Title */
+        .login-title {
+          color: #ffffff;
+          font-weight: 700;
+        }
+
+        .login-icon {
+          color: #baab6a;
+        }
+
+        /* Form Labels */
+        .login-form-label {
+          color: #ffffff;
+          font-weight: 500;
+        }
+
+        /* Form Inputs */
+        .login-input {
+          background-color: #ffffff !important;
+          border: 1px solid #ccc !important;
+          color: #204b5e !important;
+        }
+
+        .login-input:focus {
+          border-color: #fbea80 !important;
+          box-shadow: 0 0 0 0.25rem rgba(251, 234, 128, 0.25) !important;
+        }
+
+        /* Password Toggle Button */
+        .password-toggle-btn {
+          background-color: #ffffff !important;
+          border-color: #ccc !important;
+          color: #666 !important;
+        }
+
+        .password-toggle-btn:hover {
+          background-color: #f8f9fa !important;
+          border-color: #fbea80 !important;
+        }
+
+        /* Submit Button */
+        .login-submit-button {
+          background-color: #204b5e !important;
+          border-color: #baab6a !important;
+          color: #fdfac7 !important;
+          font-weight: bold;
+          padding: 0.75rem 1.5rem;
+          transition: all 0.3s ease;
+        }
+
+        .login-submit-button:hover:not(:disabled) {
+          background-color: #1a3d4e !important;
+          border-color: #fbea80 !important;
+          transform: translateY(-1px);
+        }
+
+        .login-submit-button:disabled {
+          opacity: 0.7;
+        }
+
+        /* Forgot Password Link */
+        .forgot-password-link {
+          color: #baab6a;
+          text-decoration: none;
+          font-size: 0.875rem;
+          transition: color 0.3s ease;
+        }
+
+        .forgot-password-link:hover {
+          color: #fbea80;
+        }
+
+        /* Divider */
+        .divider-container {
+          position: relative;
+          text-align: center;
+        }
+
+        .divider-line {
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider-text {
+          background-color: #204b5e;
+          color: rgba(255, 255, 255, 0.6);
+          padding: 0 1rem;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        /* Google Sign-in Button */
+        .google-signin-btn {
+          background-color: #ffffff !important;
+          border-color: #ffffff !important;
+          color: #204b5e !important;
+          font-weight: 500;
+        }
+
+        .google-signin-btn:hover {
+          background-color: #f8f9fa !important;
+          border-color: #f8f9fa !important;
+        }
+
+        /* Register Text */
+        .register-text {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.875rem;
+        }
+
+        /* Login Link Text */
+        .login-link-text {
+          color: #baab6a;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.3s ease;
+        }
+
+        .login-link-text:hover {
+          color: #fbea80;
+        }
+
+        /* Error Text */
+        .text-danger {
+          color: #ff6b6b !important;
+          font-size: 0.875rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+          .login-card {
+            margin: 1rem;
+            max-width: none;
+          }
+          
+          .login-title {
+            font-size: 1.5rem;
+          }
+        }
+.login-submit-button:hover {
+  background-color: #baab6a !important; /* Color3: Aged gold on hover */
+  border-color: #baab6a !important;
+  color: #204b5e !important; /* Color1: Dark text on hover */
+}
+
+/* Link to Register */
+.login-link-text {
+  color: #426b65; /* Color2: Green-grey for the link */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-link-text:hover {
+  color: #baab6a; /* Color3: Aged gold on hover */
+  text-decoration: underline;
+}
+/* Register Page Wrapper */
+        .register-page-wrapper {
+          background-color: #fdfac7;
+          min-height: 100vh;
+        }
+
+        /* Register Card */
+        .register-card {
+          background-color: #204b5e !important;
+          border: 1px solid #e0e0e0;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+          border-radius: 0.75rem;
+          max-width: 600px;
+          width: 100%;
+        }
+
+        /* Section Dividers */
+        .section-divider {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+          padding-bottom: 0.5rem;
+        }
+
+        .section-title {
+          color: #baab6a;
+          font-weight: 600;
+          font-size: 1.1rem;
+          margin: 0;
+          display: flex;
+          align-items: center;
+        }
+
+        /* Home Button */
+        .home-button {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: transparent;
+          color: #baab6a;
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #fbea80;
+        }
+
+        /* Register Title */
+        .register-title {
+          color: #ffffff;
+          font-weight: 700;
+        }
+
+        .register-icon {
+          color: #baab6a;
+        }
+
+        /* Form Labels */
+        .register-form-label {
+          color: #ffffff;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+        }
+
+        /* Form Inputs */
+        .register-input {
+          background-color: #ffffff !important;
+          border: 1px solid #ccc !important;
+          color: #204b5e !important;
+        }
+
+        .register-input:focus {
+          border-color: #fbea80 !important;
+          box-shadow: 0 0 0 0.25rem rgba(251, 234, 128, 0.25) !important;
+        }
+
+        /* Form Select */
+        .register-input option {
+          background-color: #ffffff;
+          color: #204b5e;
+        }
+
+        /* Password Requirements */
+        .password-requirements {
+          color: rgba(255, 255, 255, 0.7) !important;
+          font-size: 0.75rem;
+          margin-top: 0.25rem;
+        }
+
+        /* Password Toggle Button */
+        .password-toggle-btn {
+          background-color: #ffffff !important;
+          border-color: #ccc !important;
+          color: #666 !important;
+        }
+
+        .password-toggle-btn:hover {
+          background-color: #f8f9fa !important;
+          border-color: #fbea80 !important;
+        }
+
+        /* Terms Checkbox */
+        .terms-checkbox .form-check-input {
+          background-color: #ffffff;
+          border-color: #ccc;
+        }
+
+        .terms-checkbox .form-check-input:checked {
+          background-color: #baab6a;
+          border-color: #baab6a;
+        }
+
+        .terms-checkbox .form-check-input:focus {
+          border-color: #fbea80;
+          box-shadow: 0 0 0 0.25rem rgba(251, 234, 128, 0.25);
+        }
+
+        .terms-text {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 0.875rem;
+        }
+
+        .terms-link {
+          color: #baab6a;
+          text-decoration: none;
+        }
+
+        .terms-link:hover {
+          color: #fbea80;
+          text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .register-submit-button {
+          background-color: #204b5e !important;
+          border-color: #baab6a !important;
+          color: #fdfac7 !important;
+          font-weight: bold;
+          padding: 0.75rem 1.5rem;
+          transition: all 0.3s ease;
+        }
+
+        .register-submit-button:hover:not(:disabled) {
+          background-color: #1a3d4e !important;
+          border-color: #fbea80 !important;
+          transform: translateY(-1px);
+        }
+
+        .register-submit-button:disabled {
+          opacity: 0.7;
+        }
+
+        /* Divider */
+        .divider-container {
+          position: relative;
+          text-align: center;
+        }
+
+        .divider-line {
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider-text {
+          background-color: #204b5e;
+          color: rgba(255, 255, 255, 0.6);
+          padding: 0 1rem;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        /* Google Sign-up Button */
+        .google-signup-btn {
+          background-color: #ffffff !important;
+          border-color: #ffffff !important;
+          color: #204b5e !important;
+          font-weight: 500;
+        }
+
+        .google-signup-btn:hover {
+          background-color: #f8f9fa !important;
+          border-color: #f8f9fa !important;
+        }
+
+        /* Login Text */
+        .login-text {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.875rem;
+        }
+
+        /* Register Link Text */
+        .register-link-text {
+          color: #baab6a;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.3s ease;
+        }
+
+        .register-link-text:hover {
+          color: #fbea80;
+        }
+
+        /* Error Text */
+        .text-danger {
+          color: #ff6b6b !important;
+          font-size: 0.875rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+          .register-card {
+            margin: 1rem;
+            max-width: none;
+          }
+          
+          .register-title {
+            font-size: 1.5rem;
+          }
+        }
