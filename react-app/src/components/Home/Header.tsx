@@ -83,6 +83,7 @@ export const Header: React.FC = () => {
               <Button
                 variant="outline-success"
                 className="custom-search-button"
+                href="../Projects/page"
               >
                 <Search size={20} />
               </Button>

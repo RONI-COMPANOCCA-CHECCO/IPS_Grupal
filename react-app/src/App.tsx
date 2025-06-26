@@ -8,9 +8,12 @@ import { MainContent } from "./components/Home/MainContent";
 import { Features } from "./components/Home/Features";
 import { Footer } from "./components/Home/Footer";
 import { Login } from "./components/Home/Login";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Register from "./components/Home/Register";
+import { ProjectorIcon } from "lucide-react";
+import ProjectsPage from "./components/Projects/page";
 
 const HomePage: React.FC = () => {
   return (
@@ -38,6 +41,7 @@ const App: React.FC = () => {
           {/* Add more routes here for other pages like /register, /dashboard, etc. */}
           {/* Example: <Route path="/register" element={<Register />} /> */}
           <Route path="/register" element={<Register />} />
+          <Route path="/Projects/page" element={<ProjectsPage />} />
         </Routes>
       </div>
     </Router>
