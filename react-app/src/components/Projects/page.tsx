@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { SidebarUsuario } from "./SidebarUsuario";
+import { User } from "lucide-react";
+import { fetchProjects } from "../../api/proyects";
 import {
   Search,
   MapPin,
@@ -26,184 +29,199 @@ interface Project {
   id: string;
   nombre: string;
   descripcion: string;
-  zona: {
-    departamento: string;
-    provincia: string;
-    distrito: string;
-  };
+  departamento: string;
+  provincia: string;
+  distrito: string;
   tipo: string;
   estado: "activo" | "pausado" | "completado";
   presupuesto: number;
   isFavorite: boolean;
 }
+const tiposProyecto = [
+  "Vivienda",
+  "Educación",
+  "Salud",
+  "Saneamiento",
+  "Infraestructura",
+  "Desarrollo Social",
+];
+
+const departamentos = [
+  "Lima",
+  "Cusco",
+  "Arequipa",
+  "Loreto",
+  "Piura",
+  "La Libertad",
+  "Lambayeque",
+  "Ancash",
+  "Junín",
+  "Ica",
+  "Huánuco",
+  "San Martín",
+  "Cajamarca",
+  "Ayacucho",
+  "Ucayali",
+  "Apurímac",
+  "Amazonas",
+  "Huancavelica",
+  "Moquegua",
+  "Pasco",
+  "Tacna",
+  "Tumbes",
+  "Madre de Dios",
+  "Puno",
+  "Callao",
+];
 
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartamento, setSelectedDepartamento] = useState("");
   const [selectedProvincia, setSelectedProvincia] = useState("");
   const [selectedTipo, setSelectedTipo] = useState("");
+  const [showSidebar, setShowSidebar] = useState(false);
+  const handleFavoriteUpdate = () => {
+    // Actualizar la lista principal de proyectos
+    console.log("Favoritos actualizados");
+  };
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: "1",
-      nombre: "Construcción de Viviendas Sociales Lima Norte",
-      descripcion:
-        "Proyecto de construcción de 500 viviendas sociales para familias de bajos recursos en la zona norte de Lima.",
-      zona: {
-        departamento: "Lima",
-        provincia: "Lima",
-        distrito: "San Martín de Porres",
-      },
-      tipo: "Vivienda",
-      estado: "activo",
-      presupuesto: 25000000,
-      isFavorite: false,
-    },
-    {
-      id: "2",
-      nombre: "Mejoramiento de Infraestructura Educativa Cusco",
-      descripcion:
-        "Rehabilitación y equipamiento de 15 instituciones educativas rurales en la región de Cusco.",
-      zona: {
-        departamento: "Cusco",
-        provincia: "Cusco",
-        distrito: "Pisaq",
-      },
-      tipo: "Educación",
-      estado: "activo",
-      presupuesto: 8500000,
-      isFavorite: true,
-    },
-    {
-      id: "3",
-      nombre: "Sistema de Agua Potable Arequipa",
-      descripcion:
-        "Instalación de sistema de agua potable y alcantarillado en zonas rurales de Arequipa.",
-      zona: {
-        departamento: "Arequipa",
-        provincia: "Arequipa",
-        distrito: "Characato",
-      },
-      tipo: "Saneamiento",
-      estado: "completado",
-      presupuesto: 12000000,
-      isFavorite: false,
-    },
-    {
-      id: "4",
-      nombre: "Centro de Salud Integral Loreto",
-      descripcion:
-        "Construcción de centro de salud con equipamiento médico moderno para la comunidad de Iquitos.",
-      zona: {
-        departamento: "Loreto",
-        provincia: "Maynas",
-        distrito: "Iquitos",
-      },
-      tipo: "Salud",
-      estado: "pausado",
-      presupuesto: 15000000,
-      isFavorite: false,
-    },
-    {
-      id: "5",
-      nombre: "Carretera Rural Amazonas",
-      descripcion:
-        "Construcción de carretera rural para conectar comunidades aisladas en la región amazónica.",
-      zona: {
-        departamento: "Amazonas",
-        provincia: "Chachapoyas",
-        distrito: "Chachapoyas",
-      },
-      tipo: "Infraestructura",
-      estado: "activo",
-      presupuesto: 18000000,
-      isFavorite: true,
-    },
-    {
-      id: "6",
-      nombre: "Programa de Desarrollo Social Huánuco",
-      descripcion:
-        "Programa integral de desarrollo social enfocado en reducir la pobreza en comunidades rurales.",
-      zona: {
-        departamento: "Huánuco",
-        provincia: "Huánuco",
-        distrito: "Amarilis",
-      },
-      tipo: "Desarrollo Social",
-      estado: "activo",
-      presupuesto: 6500000,
-      isFavorite: false,
-    },
-  ]);
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
 
-  const departamentos = [
-    "Lima",
-    "Cusco",
-    "Arequipa",
-    "Loreto",
-    "Piura",
-    "La Libertad",
-    "Lambayeque",
-    "Ancash",
-    "Junín",
-    "Ica",
-    "Huánuco",
-    "San Martín",
-    "Cajamarca",
-    "Ayacucho",
-    "Ucayali",
-    "Apurímac",
-    "Amazonas",
-    "Huancavelica",
-    "Moquegua",
-    "Pasco",
-    "Tacna",
-    "Tumbes",
-    "Madre de Dios",
-    "Puno",
-    "Callao",
-  ];
+        if (searchTerm) params.append("search", searchTerm); // opcional
+        if (selectedDepartamento)
+          params.append("departamento", selectedDepartamento);
+        if (selectedProvincia) params.append("provincia", selectedProvincia);
+        if (selectedTipo) params.append("tipo", selectedTipo);
 
-  const tiposProyecto = [
-    "Vivienda",
-    "Educación",
-    "Salud",
-    "Saneamiento",
-    "Infraestructura",
-    "Desarrollo Social",
-  ];
+        const token = localStorage.getItem("token");
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch =
-      project.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartamento =
-      selectedDepartamento === "" ||
-      selectedDepartamento === "all" ||
-      project.zona.departamento === selectedDepartamento;
-    const matchesProvincia =
-      selectedProvincia === "" ||
-      project.zona.provincia
-        .toLowerCase()
-        .includes(selectedProvincia.toLowerCase());
-    const matchesTipo =
-      selectedTipo === "" ||
-      selectedTipo === "all" ||
-      project.tipo === selectedTipo;
+        const response = await fetch(
+          `http://localhost:8000/api/proyectos/?${params.toString()}`,
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          }
+        );
 
-    return (
-      matchesSearch && matchesDepartamento && matchesProvincia && matchesTipo
-    );
-  });
+        const data = await response.json();
 
-  const toggleFavorite = (projectId: string) => {
-    setProjects(
-      projects.map((project) =>
-        project.id === projectId
-          ? { ...project, isFavorite: !project.isFavorite }
-          : project
+        // Adaptar la respuesta si la API no devuelve "zona"
+        const adapted = data.map((item: any) => ({
+          ...item,
+          zona: {
+            departamento: item.departamento,
+            provincia: item.provincia,
+            distrito: item.distrito,
+          },
+          isFavorite: false, // puedes reemplazar por datos reales si los manejas
+        }));
+
+        setProjects(adapted);
+      } catch (err: any) {
+        setError(err.message || "Error al cargar proyectos");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProjects();
+  }, [searchTerm, selectedDepartamento, selectedProvincia, selectedTipo]);
+
+  const toggleFavorite = async (projectId: string) => {
+    const userRaw = localStorage.getItem("usuario");
+    const token = localStorage.getItem("token");
+
+    if (!userRaw || !token) {
+      alert("Debes iniciar sesión");
+      return;
+    }
+
+    let user;
+    try {
+      user = JSON.parse(userRaw);
+      if (!user?.id) throw new Error("Usuario inválido");
+    } catch (e) {
+      const errorMessage =
+        e instanceof Error ? e.message : "Error al recuperar la sesión";
+      alert(`${errorMessage}. Inicia sesión nuevamente.`);
+      return;
+    }
+
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) {
+      console.error("Proyecto no encontrado");
+      return;
+    }
+
+    const isAlreadyFavorite = project.isFavorite;
+
+    // Actualización optimista de la UI
+    setProjects((prevProjects) =>
+      prevProjects.map((p) =>
+        p.id === projectId ? { ...p, isFavorite: !p.isFavorite } : p
       )
     );
+
+    try {
+      if (isAlreadyFavorite) {
+        // Eliminar favorito
+        const response = await fetch(
+          `http://localhost:8000/api/eliminar-favorito/?usuario=${user.id}&proyecto=${projectId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Error al eliminar favorito");
+        }
+      } else {
+        // Agregar favorito
+        const response = await fetch("http://localhost:8000/api/favoritos/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+          body: JSON.stringify({ proyecto: projectId }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Error en el POST:", errorData);
+          throw new Error("No se pudo agregar a favoritos");
+        }
+      }
+
+      // Opcional: Mostrar mensaje de éxito
+      const action = isAlreadyFavorite ? "eliminado de" : "agregado a";
+      console.log(`Proyecto ${action} favoritos exitosamente`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Error al actualizar favorito";
+      console.error("Error actualizando favorito:", error);
+
+      // Revertir el cambio optimista en caso de error
+      setProjects((prevProjects) =>
+        prevProjects.map((p) =>
+          p.id === projectId ? { ...p, isFavorite: isAlreadyFavorite } : p
+        )
+      );
+
+      // Mostrar mensaje de error al usuario
+      alert(errorMessage);
+    }
   };
 
   const getStatusBadge = (estado: string) => {
@@ -369,8 +387,7 @@ export default function ProjectsPage() {
             <div className="results-summary">
               <div className="d-flex justify-content-between align-items-center">
                 <p className="results-text mb-0">
-                  Se encontraron <strong>{filteredProjects.length}</strong>{" "}
-                  proyecto(s)
+                  Se encontraron <strong>{projects.length}</strong> proyecto(s)
                   {searchTerm && ` para "${searchTerm}"`}
                   {selectedDepartamento &&
                     selectedDepartamento !== "all" &&
@@ -381,10 +398,14 @@ export default function ProjectsPage() {
           </Card.Body>
         </Card>
 
+        {/* Mensajes de carga o error */}
+        {loading && <p className="text-center">Cargando proyectos...</p>}
+        {error && <p className="text-center text-danger">Error: {error}</p>}
+
         {/* Projects Grid */}
-        {filteredProjects.length > 0 ? (
+        {!loading && !error && projects.length > 0 ? (
           <Row>
-            {filteredProjects.map((project) => (
+            {projects.map((project) => (
               <Col lg={4} md={6} className="mb-4" key={project.id}>
                 <Card className="project-card h-100">
                   <Card.Header className="project-card-header">
@@ -421,8 +442,8 @@ export default function ProjectsPage() {
                       <div className="detail-item d-flex align-items-center mb-2">
                         <MapPin size={16} className="detail-icon me-2" />
                         <span className="detail-text small">
-                          {project.zona.distrito}, {project.zona.provincia},{" "}
-                          {project.zona.departamento}
+                          {project.distrito}, {project.provincia},{" "}
+                          {project.departamento}
                         </span>
                       </div>
 
@@ -456,23 +477,36 @@ export default function ProjectsPage() {
             ))}
           </Row>
         ) : (
-          <Card className="no-results text-center py-5">
-            <Card.Body>
-              <Search size={64} className="no-results-icon text-muted mb-3" />
-              <h3 className="no-results-title h4 text-muted mb-2">
-                No se encontraron proyectos
-              </h3>
-              <p className="no-results-text text-muted mb-4">
-                Intenta ajustar los filtros de búsqueda o buscar con términos
-                diferentes.
-              </p>
-              <Button onClick={clearFilters} className="btn-primary-custom">
-                Limpiar filtros
-              </Button>
-            </Card.Body>
-          </Card>
+          !loading &&
+          !error && (
+            <Card className="no-results text-center py-5">
+              <Card.Body>
+                <Search size={64} className="no-results-icon text-muted mb-3" />
+                <h3 className="no-results-title h4 text-muted mb-2">
+                  No se encontraron proyectos
+                </h3>
+                <p className="no-results-text text-muted mb-4">
+                  Intenta ajustar los filtros de búsqueda o buscar con términos
+                  diferentes.
+                </p>
+                <Button onClick={clearFilters} className="btn-primary-custom">
+                  Limpiar filtros
+                </Button>
+              </Card.Body>
+            </Card>
+          )
         )}
       </Container>
+      <button className="btn btn-primary" onClick={() => setShowSidebar(true)}>
+        Mi Cuenta
+      </button>
+
+      {/* Sidebar */}
+      <SidebarUsuario
+        show={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onFavoriteUpdate={handleFavoriteUpdate}
+      />
     </div>
   );
 }

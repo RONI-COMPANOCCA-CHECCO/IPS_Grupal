@@ -13,8 +13,10 @@ import {
 } from "react-bootstrap";
 import { LogIn, Home, Eye, EyeOff } from "lucide-react";
 import { Link } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,17 +48,37 @@ export const Login: React.FC = () => {
     event.preventDefault();
 
     if (!validateForm()) return;
-
     setIsLoading(true);
 
     try {
-      console.log("Login attempt:", { email, password });
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      // Here you would typically send these credentials to your backend
-      // and handle authentication (e.g., set a token, redirect user)
+      const response = await fetch("http://localhost:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          correo: email,
+          contrasena: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorText = data?.error || "Credenciales inválidas";
+        setErrors({ password: errorText });
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+      // ✅ Redirigir usando navigate (más limpio que window.location)
+      navigate("/Projects/page");
     } catch (error) {
       console.error("Login error:", error);
+      setErrors({ password: "Error al conectar con el servidor" });
     } finally {
       setIsLoading(false);
     }

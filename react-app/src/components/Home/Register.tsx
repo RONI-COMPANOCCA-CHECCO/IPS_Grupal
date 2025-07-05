@@ -167,31 +167,35 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      const userData = {
-        nombre: formData.nombre.trim(),
-        email: formData.email.toLowerCase(),
-        password: formData.password,
-        preferencias: {
-          ubicacion: {
-            pais: formData.country,
-            estado_provincia: formData.state.trim(),
-            ciudad: formData.city.trim(),
-          },
-          idioma: "es",
-          notificaciones: {
-            email: true,
-            push: true,
-          },
-          tema: "light",
-        },
-        rol: formData.rol,
+      const payload = {
+        nombre_completo: formData.nombre.trim(),
+        correo: formData.email.toLowerCase(),
+        contrasena: formData.password, // el backend debe encriptar
+        pais: formData.country,
+        provincia: formData.state,
+        ciudad: formData.city,
+        recibir_email: true,
       };
 
-      console.log("Registration attempt:", userData);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+      const response = await fetch("http://localhost:8000/api/usuarios/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error al registrar:", errorData);
+        alert("Error al registrar el usuario.");
+      } else {
+        alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+        setCurrentStep(1); // Reiniciar al paso 1 o redirigir a login
+      }
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Error en registro:", error);
+      alert("Ocurrió un error al registrar.");
     } finally {
       setIsLoading(false);
     }
