@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { SidebarUsuario } from "./SidebarUsuario";
-import { User } from "lucide-react";
-import { fetchProjects } from "../../api/proyects";
+import { ProjectDetailsModal } from "./ProjectDetail";
+import { MiniMap } from "./MiniMap";
+import { User, CheckCircle, XCircle, Info } from "lucide-react";
 import {
   Search,
   MapPin,
@@ -23,6 +24,8 @@ import {
   InputGroup,
   Card,
   Badge,
+  Toast,
+  ToastContainer,
 } from "react-bootstrap";
 
 interface Project {
@@ -36,7 +39,50 @@ interface Project {
   estado: "activo" | "pausado" | "completado";
   presupuesto: number;
   isFavorite: boolean;
+  ubigeo?: string; // Nuevo campo agregado
+  fechaInicio?: string;
+  fechaFin?: string;
+  beneficiarios?: number;
+  responsable?: {
+    nombre: string;
+    cargo: string;
+    telefono: string;
+    email: string;
+  };
+  ubicacion?: {
+    coordenadas?: {
+      lat: number;
+      lng: number;
+    };
+    direccion?: string;
+    referencia?: string;
+  };
+  especificaciones?: {
+    objetivos?: string[];
+    alcance?: string;
+    metodologia?: string;
+    entregables?: string[];
+  };
+  contactos?: {
+    supervisor?: {
+      nombre: string;
+      telefono: string;
+      email: string;
+    };
+    coordinador?: {
+      nombre: string;
+      telefono: string;
+      email: string;
+    };
+  };
 }
+
+interface ToastMessage {
+  id: number;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
 const tiposProyecto = [
   "Vivienda",
   "Educación",
@@ -80,58 +126,90 @@ export default function ProjectsPage() {
   const [selectedProvincia, setSelectedProvincia] = useState("");
   const [selectedTipo, setSelectedTipo] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
-  const handleFavoriteUpdate = () => {
-    // Actualizar la lista principal de proyectos
-    console.log("Favoritos actualizados");
-  };
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  // Función para mostrar mensajes toast
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
+    const newToast: ToastMessage = {
+      id: Date.now(),
+      message,
+      type,
+    };
+    setToasts((prev) => [...prev, newToast]);
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== newToast.id));
+    }, 4000);
+  };
+
+  const handleFavoriteUpdate = () => {
+    showToast("Lista de favoritos actualizada", "success");
+    // Recargar proyectos para actualizar el estado de favoritos
+    loadProjects();
+  };
+
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+
+      if (searchTerm) params.append("search", searchTerm);
+      if (selectedDepartamento)
+        params.append("departamento", selectedDepartamento);
+      if (selectedProvincia) params.append("provincia", selectedProvincia);
+      if (selectedTipo) params.append("tipo", selectedTipo);
+
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:8000/api/proyectos/?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      const adapted = data.map((item: any) => ({
+        ...item,
+        zona: {
+          departamento: item.departamento,
+          provincia: item.provincia,
+          distrito: item.distrito,
+        },
+        isFavorite: false,
+      }));
+
+      setProjects(adapted);
+
+      if (adapted.length === 0) {
+        showToast(
+          "No se encontraron proyectos con los filtros aplicados",
+          "info"
+        );
+      } else {
+        showToast(`${adapted.length} proyecto(s) encontrado(s)`, "success");
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || "Error al cargar proyectos";
+      setError(errorMessage);
+      showToast(errorMessage, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadProjects() {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-
-        if (searchTerm) params.append("search", searchTerm); // opcional
-        if (selectedDepartamento)
-          params.append("departamento", selectedDepartamento);
-        if (selectedProvincia) params.append("provincia", selectedProvincia);
-        if (selectedTipo) params.append("tipo", selectedTipo);
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-          `http://localhost:8000/api/proyectos/?${params.toString()}`,
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-
-        // Adaptar la respuesta si la API no devuelve "zona"
-        const adapted = data.map((item: any) => ({
-          ...item,
-          zona: {
-            departamento: item.departamento,
-            provincia: item.provincia,
-            distrito: item.distrito,
-          },
-          isFavorite: false, // puedes reemplazar por datos reales si los manejas
-        }));
-
-        setProjects(adapted);
-      } catch (err: any) {
-        setError(err.message || "Error al cargar proyectos");
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadProjects();
   }, [searchTerm, selectedDepartamento, selectedProvincia, selectedTipo]);
 
@@ -140,7 +218,7 @@ export default function ProjectsPage() {
     const token = localStorage.getItem("token");
 
     if (!userRaw || !token) {
-      alert("Debes iniciar sesión");
+      showToast("Debes iniciar sesión para agregar favoritos", "error");
       return;
     }
 
@@ -151,13 +229,13 @@ export default function ProjectsPage() {
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "Error al recuperar la sesión";
-      alert(`${errorMessage}. Inicia sesión nuevamente.`);
+      showToast(`${errorMessage}. Inicia sesión nuevamente.`, "error");
       return;
     }
 
     const project = projects.find((p) => p.id === projectId);
     if (!project) {
-      console.error("Proyecto no encontrado");
+      showToast("Proyecto no encontrado", "error");
       return;
     }
 
@@ -186,6 +264,8 @@ export default function ProjectsPage() {
         if (!response.ok) {
           throw new Error("Error al eliminar favorito");
         }
+
+        showToast(`"${project.nombre}" eliminado de favoritos`, "success");
       } else {
         // Agregar favorito
         const response = await fetch("http://localhost:8000/api/favoritos/", {
@@ -199,18 +279,14 @@ export default function ProjectsPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("Error en el POST:", errorData);
           throw new Error("No se pudo agregar a favoritos");
         }
-      }
 
-      // Opcional: Mostrar mensaje de éxito
-      const action = isAlreadyFavorite ? "eliminado de" : "agregado a";
-      console.log(`Proyecto ${action} favoritos exitosamente`);
+        showToast(`"${project.nombre}" agregado a favoritos`, "success");
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Error al actualizar favorito";
-      console.error("Error actualizando favorito:", error);
 
       // Revertir el cambio optimista en caso de error
       setProjects((prevProjects) =>
@@ -219,8 +295,7 @@ export default function ProjectsPage() {
         )
       );
 
-      // Mostrar mensaje de error al usuario
-      alert(errorMessage);
+      showToast(errorMessage, "error");
     }
   };
 
@@ -264,6 +339,21 @@ export default function ProjectsPage() {
     setSelectedDepartamento("");
     setSelectedProvincia("");
     setSelectedTipo("");
+    showToast("Filtros limpiados", "info");
+  };
+
+  const removeToast = (id: number) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  const handleShowDetails = (project: Project) => {
+    setSelectedProject(project);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailsModal(false);
+    setSelectedProject(null);
   };
 
   return (
@@ -288,6 +378,17 @@ export default function ProjectsPage() {
       </div>
 
       <Container className="pb-5">
+        {/* User Account Button */}
+        <div className="d-flex justify-content-end mb-3">
+          <Button
+            className="user-account-btn"
+            onClick={() => setShowSidebar(true)}
+          >
+            <User size={16} className="me-2" />
+            Mi Cuenta
+          </Button>
+        </div>
+
         {/* Search and Filter Section */}
         <Card className="search-section mb-4">
           <Card.Body>
@@ -398,9 +499,29 @@ export default function ProjectsPage() {
           </Card.Body>
         </Card>
 
-        {/* Mensajes de carga o error */}
-        {loading && <p className="text-center">Cargando proyectos...</p>}
-        {error && <p className="text-center text-danger">Error: {error}</p>}
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary mb-3" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+            <p className="text-muted">Cargando proyectos...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Card className="border-danger mb-4">
+            <Card.Body className="text-center py-4">
+              <XCircle size={48} className="text-danger mb-3" />
+              <h5 className="text-danger">Error al cargar proyectos</h5>
+              <p className="text-muted mb-3">{error}</p>
+              <Button onClick={loadProjects} variant="outline-danger">
+                Reintentar
+              </Button>
+            </Card.Body>
+          </Card>
+        )}
 
         {/* Projects Grid */}
         {!loading && !error && projects.length > 0 ? (
@@ -446,7 +567,17 @@ export default function ProjectsPage() {
                           {project.departamento}
                         </span>
                       </div>
-
+                      {/* Nuevo elemento para mostrar el ubigeo */}
+                      {project.ubigeo && (
+                        <div className="detail-item d-flex align-items-center mb-2">
+                          <span className="detail-label fw-bold me-2 text-muted small">
+                            Ubigeo:
+                          </span>
+                          <span className="detail-value text-muted small font-monospace">
+                            {project.ubigeo}
+                          </span>
+                        </div>
+                      )}
                       <div className="detail-item d-flex align-items-center mb-2">
                         <div className="project-type d-flex align-items-center">
                           <span className="me-2">
@@ -468,9 +599,17 @@ export default function ProjectsPage() {
                   </Card.Body>
 
                   <Card.Footer className="project-card-footer">
-                    <Button className="btn-primary-custom w-100">
-                      Ver Detalles
-                    </Button>
+                    <div className="d-flex gap-2">
+                      <Button
+                        className="btn-primary-custom flex-fill"
+                        onClick={() => handleShowDetails(project)}
+                      >
+                        Ver Especificaciones
+                      </Button>
+                      <Button variant="outline-primary" className="flex-fill">
+                        Ver Detalles
+                      </Button>
+                    </div>
                   </Card.Footer>
                 </Card>
               </Col>
@@ -497,9 +636,12 @@ export default function ProjectsPage() {
           )
         )}
       </Container>
-      <button className="btn btn-primary" onClick={() => setShowSidebar(true)}>
-        Mi Cuenta
-      </button>
+      {/* Project Details Modal */}
+      <ProjectDetailsModal
+        show={showDetailsModal}
+        onHide={handleCloseDetails}
+        project={selectedProject}
+      />
 
       {/* Sidebar */}
       <SidebarUsuario
@@ -507,6 +649,45 @@ export default function ProjectsPage() {
         onClose={() => setShowSidebar(false)}
         onFavoriteUpdate={handleFavoriteUpdate}
       />
+
+      {/* Toast Container */}
+      <ToastContainer position="top-end" className="toast-container-projects">
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            show={true}
+            onClose={() => removeToast(toast.id)}
+            className={`toast-custom toast-${toast.type}`}
+            delay={4000}
+            autohide
+          >
+            <Toast.Header closeButton={false}>
+              <div className="d-flex align-items-center">
+                {toast.type === "success" && (
+                  <CheckCircle size={16} className="text-success me-2" />
+                )}
+                {toast.type === "error" && (
+                  <XCircle size={16} className="text-danger me-2" />
+                )}
+                {toast.type === "info" && (
+                  <Info size={16} className="text-info me-2" />
+                )}
+                <strong className="me-auto">
+                  {toast.type === "success" && "Éxito"}
+                  {toast.type === "error" && "Error"}
+                  {toast.type === "info" && "Información"}
+                </strong>
+              </div>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={() => removeToast(toast.id)}
+              ></button>
+            </Toast.Header>
+            <Toast.Body>{toast.message}</Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
     </div>
   );
 }

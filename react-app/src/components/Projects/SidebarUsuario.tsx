@@ -1,9 +1,15 @@
+"use client";
+
+import type React from "react";
+
 import { useEffect, useState } from "react";
+import { User, Heart, LogOut, X, AlertCircle, Loader2 } from "lucide-react";
+import { Toast, ToastContainer } from "react-bootstrap";
 
 interface SidebarUsuarioProps {
   show: boolean;
   onClose: () => void;
-  onFavoriteUpdate?: () => void; // Callback para actualizar la lista principal
+  onFavoriteUpdate?: () => void;
 }
 
 interface Usuario {
@@ -18,6 +24,12 @@ interface Favorito {
   proyecto_nombre: string;
 }
 
+interface ToastMessage {
+  id: number;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
 export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
   show,
   onClose,
@@ -27,6 +39,25 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Función para mostrar mensajes toast
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
+    const newToast: ToastMessage = {
+      id: Date.now(),
+      message,
+      type,
+    };
+    setToasts((prev) => [...prev, newToast]);
+
+    // Auto-remove toast after 4 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== newToast.id));
+    }, 4000);
+  };
 
   // Función para cargar favoritos
   const cargarFavoritos = async (usuarioId: number) => {
@@ -50,13 +81,19 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
 
       const data = await response.json();
       setFavoritos(data);
+
+      if (data.length === 0) {
+        showToast("No tienes proyectos favoritos aún", "info");
+      } else {
+        showToast(`${data.length} favorito(s) cargado(s)`, "success");
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error
           ? err.message
           : "No se pudieron cargar los favoritos";
       setError(errorMessage);
-      console.error("Error cargando favoritos:", err);
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -75,13 +112,16 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
             ? err.message
             : "Error al cargar la información del usuario";
         setError(errorMessage);
-        console.error("Error parsing user data:", err);
+        showToast(errorMessage, "error");
       }
     }
-  }, [show]); // Recargar cuando se abre el sidebar
+  }, [show]);
 
   // Función para eliminar favorito
-  const eliminarFavorito = async (proyectoId: string) => {
+  const eliminarFavorito = async (
+    proyectoId: string,
+    proyectoNombre: string
+  ) => {
     if (!usuario) return;
 
     setLoading(true);
@@ -105,6 +145,7 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
 
       // Actualizar la lista local
       setFavoritos((prev) => prev.filter((f) => f.proyecto !== proyectoId));
+      showToast(`"${proyectoNombre}" eliminado de favoritos`, "success");
 
       // Notificar al componente padre
       if (onFavoriteUpdate) {
@@ -114,7 +155,7 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
       const errorMessage =
         err instanceof Error ? err.message : "No se pudo eliminar el favorito";
       setError(errorMessage);
-      console.error("Error eliminando favorito:", err);
+      showToast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -123,100 +164,174 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
   const handleLogout = () => {
     localStorage.removeItem("usuario");
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    showToast("Sesión cerrada exitosamente", "success");
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1000);
+  };
+
+  const removeToast = (id: number) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   return (
-    <div
-      className={`offcanvas offcanvas-end ${show ? "show" : ""}`}
-      tabIndex={-1}
-    >
-      <div className="offcanvas-header">
-        <h5 className="offcanvas-title">Mi Cuenta</h5>
-        <button
-          type="button"
-          className="btn-close"
-          onClick={onClose}
-          aria-label="Close"
-        ></button>
-      </div>
+    <>
+      {/* Backdrop */}
+      {show && <div className="sidebar-backdrop" onClick={onClose}></div>}
 
-      <div className="offcanvas-body">
-        {usuario ? (
-          <>
-            {/* Información del usuario */}
-            <div className="mb-4">
-              <p className="mb-2">
-                <strong>Nombre:</strong> {usuario.nombre}
-              </p>
-              <p className="mb-0">
-                <strong>Correo:</strong> {usuario.correo}
-              </p>
-            </div>
+      {/* Sidebar */}
+      <div className={`user-sidebar ${show ? "show" : ""}`}>
+        {/* Header */}
+        <div className="sidebar-header">
+          <div className="d-flex align-items-center">
+            <User size={24} className="sidebar-header-icon me-2" />
+            <h5 className="sidebar-title mb-0">Mi Cuenta</h5>
+          </div>
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={onClose}
+            aria-label="Cerrar"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-            {/* Sección de favoritos */}
-            <div className="mb-4">
-              <h5 className="mb-3">Favoritos</h5>
-
-              {error && (
-                <div className="alert alert-danger" role="alert">
-                  {error}
+        {/* Body */}
+        <div className="sidebar-body">
+          {usuario ? (
+            <>
+              {/* User Info Card */}
+              <div className="user-info-card">
+                <div className="user-avatar">
+                  <User size={32} />
                 </div>
-              )}
+                <div className="user-details">
+                  <h6 className="user-name">{usuario.nombre}</h6>
+                  <p className="user-email">{usuario.correo}</p>
+                </div>
+              </div>
 
-              {loading && (
-                <div className="text-center mb-3">
-                  <div
-                    className="spinner-border spinner-border-sm me-2"
-                    role="status"
-                  >
-                    <span className="visually-hidden">Loading...</span>
+              {/* Favorites Section */}
+              <div className="favorites-section">
+                <div className="section-header">
+                  <Heart size={20} className="section-icon" />
+                  <h6 className="section-title">Mis Favoritos</h6>
+                  {favoritos.length > 0 && (
+                    <span className="favorites-count">{favoritos.length}</span>
+                  )}
+                </div>
+
+                {error && (
+                  <div className="error-message">
+                    <AlertCircle size={16} className="me-2" />
+                    {error}
                   </div>
-                  Cargando...
-                </div>
-              )}
+                )}
 
-              {favoritos.length > 0 ? (
-                <div className="list-group">
-                  {favoritos.map((favorito) => (
-                    <div
-                      key={favorito.id}
-                      className="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      <span>{favorito.proyecto_nombre || "Proyecto"}</span>
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={() => eliminarFavorito(favorito.proyecto)}
-                        disabled={loading}
-                        title="Eliminar de favoritos"
-                      >
-                        &times;
-                      </button>
+                {loading && (
+                  <div className="loading-message">
+                    <Loader2 size={16} className="spinner me-2" />
+                    Cargando favoritos...
+                  </div>
+                )}
+
+                {favoritos.length > 0 ? (
+                  <div className="favorites-list">
+                    {favoritos.map((favorito) => (
+                      <div key={favorito.id} className="favorite-item">
+                        <div className="favorite-content">
+                          <Heart size={14} className="favorite-icon" />
+                          <span className="favorite-name">
+                            {favorito.proyecto_nombre || "Proyecto"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="remove-favorite-btn"
+                          onClick={() =>
+                            eliminarFavorito(
+                              favorito.proyecto,
+                              favorito.proyecto_nombre
+                            )
+                          }
+                          disabled={loading}
+                          title="Eliminar de favoritos"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  !loading && (
+                    <div className="empty-favorites">
+                      <Heart size={32} className="empty-icon" />
+                      <p className="empty-text">Aún no tienes favoritos</p>
+                      <small className="empty-subtext">
+                        Marca proyectos como favoritos para verlos aquí
+                      </small>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                !loading && (
-                  <p className="text-muted">Aún no tienes favoritos.</p>
-                )
-              )}
+                  )
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="no-user-message">
+              <User size={48} className="no-user-icon" />
+              <p className="no-user-text">No has iniciado sesión</p>
             </div>
+          )}
+        </div>
 
-            {/* Botón de cerrar sesión */}
+        {/* Footer */}
+        {usuario && (
+          <div className="sidebar-footer">
             <button
               type="button"
-              className="btn btn-outline-danger w-100 mt-auto"
+              className="logout-btn"
               onClick={handleLogout}
               disabled={loading}
             >
+              <LogOut size={16} className="me-2" />
               Cerrar Sesión
             </button>
-          </>
-        ) : (
-          <p className="text-muted">No has iniciado sesión.</p>
+          </div>
         )}
       </div>
-    </div>
+
+      {/* Toast Container */}
+      <ToastContainer position="top-end" className="toast-container-custom">
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            show={true}
+            onClose={() => removeToast(toast.id)}
+            className={`toast-custom toast-${toast.type}`}
+            delay={4000}
+            autohide
+          >
+            <Toast.Header closeButton={false}>
+              <div
+                className={`toast-indicator toast-indicator-${toast.type}`}
+              ></div>
+              <strong className="me-auto">
+                {toast.type === "success" && "Éxito"}
+                {toast.type === "error" && "Error"}
+                {toast.type === "info" && "Información"}
+              </strong>
+              <button
+                type="button"
+                className="toast-close-btn"
+                onClick={() => removeToast(toast.id)}
+              >
+                <X size={14} />
+              </button>
+            </Toast.Header>
+            <Toast.Body>{toast.message}</Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
+    </>
   );
 };
