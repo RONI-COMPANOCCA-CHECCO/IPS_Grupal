@@ -3,7 +3,16 @@
 import type React from "react";
 
 import { useEffect, useState } from "react";
-import { User, Heart, LogOut, X, AlertCircle, Loader2 } from "lucide-react";
+import {
+  User,
+  Heart,
+  LogOut,
+  X,
+  AlertCircle,
+  Loader2,
+  MapPin,
+  Star,
+} from "lucide-react";
 import { Toast, ToastContainer } from "react-bootstrap";
 
 interface SidebarUsuarioProps {
@@ -16,12 +25,25 @@ interface Usuario {
   id: number;
   nombre: string;
   correo: string;
+  pais?: string;
+  provincia?: string;
+  ciudad?: string;
 }
 
 interface Favorito {
   id: number;
   proyecto: string;
   proyecto_nombre: string;
+}
+
+interface Recomendacion {
+  id: number;
+  nombre: string;
+  tipo: string;
+  direccion: string;
+  rating: number;
+  distancia?: string;
+  imagen?: string;
 }
 
 interface ToastMessage {
@@ -37,7 +59,9 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
 }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [favoritos, setFavoritos] = useState<Favorito[]>([]);
+  const [recomendaciones, setRecomendaciones] = useState<Recomendacion[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingRecomendaciones, setLoadingRecomendaciones] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -98,14 +122,118 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
       setLoading(false);
     }
   };
+  // Función para cargar recomendaciones
+  const cargarRecomendaciones = async (usuario: Usuario) => {
+    console.log("Intentando cargar recomendaciones para:", usuario); // Debug
+
+    if (!usuario.pais || !usuario.provincia || !usuario.ciudad) {
+      console.log("Datos de ubicación faltantes:", {
+        pais: usuario.pais,
+        provincia: usuario.provincia,
+        distrito: usuario.ciudad,
+      }); // Debug
+      return;
+    }
+
+    setLoadingRecomendaciones(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      // Debug: Verificar que el token existe
+      console.log("Token encontrado:", token ? "Sí" : "No");
+      console.log(
+        "Token (primeros 20 caracteres):",
+        token?.substring(0, 20) + "..."
+      );
+
+      if (!token) {
+        throw new Error(
+          "Token no encontrado. Por favor, inicia sesión nuevamente."
+        );
+      }
+
+      const url = `http://localhost:8000/api/recomendaciones/?pais=${encodeURIComponent(
+        usuario.pais
+      )}&provincia=${encodeURIComponent(
+        usuario.provincia
+      )}&ciudad=${encodeURIComponent(usuario.ciudad)}`;
+
+      console.log("URL de la petición:", url); // Debug
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Debug: Mostrar detalles de la respuesta
+      console.log("Status de respuesta:", response.status);
+      console.log(
+        "Headers de respuesta:",
+        Object.fromEntries(response.headers.entries())
+      );
+
+      if (!response.ok) {
+        // Intentar obtener más detalles del error
+        let errorDetails;
+        try {
+          errorDetails = await response.json();
+        } catch {
+          errorDetails = await response.text();
+        }
+
+        console.error("Error del servidor:", {
+          status: response.status,
+          statusText: response.statusText,
+          details: errorDetails,
+        });
+
+        if (response.status === 401) {
+          // Token inválido o expirado
+          localStorage.removeItem("token");
+          throw new Error(
+            "Tu sesión ha expirado. Por favor, inicia sesión nuevamente."
+          );
+        }
+
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Recomendaciones recibidas:", data); // Debug
+      setRecomendaciones(data);
+
+      if (data.length > 0) {
+        showToast(`${data.length} recomendación(es) encontrada(s)`, "success");
+      } else {
+        showToast(
+          "No se encontraron recomendaciones para tu ubicación",
+          "info"
+        );
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "No se pudieron cargar las recomendaciones";
+      console.error("Error cargando recomendaciones:", err); // Debug
+      showToast(errorMessage, "error");
+    } finally {
+      setLoadingRecomendaciones(false);
+    }
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("usuario");
     if (storedUser && show) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        console.log("Usuario cargado:", parsedUser); // Debug
         setUsuario(parsedUser);
         cargarFavoritos(parsedUser.id);
+        cargarRecomendaciones(parsedUser);
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -174,6 +302,28 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
+  // Función para renderizar estrellas
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Star key={i} size={12} className="star-filled" />);
+    }
+
+    if (hasHalfStar) {
+      stars.push(<Star key="half" size={12} className="star-half" />);
+    }
+
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<Star key={`empty-${i}`} size={12} className="star-empty" />);
+    }
+
+    return stars;
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -209,6 +359,12 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
                 <div className="user-details">
                   <h6 className="user-name">{usuario.nombre}</h6>
                   <p className="user-email">{usuario.correo}</p>
+                  {usuario.ciudad && usuario.provincia && usuario.pais && (
+                    <p className="user-location">
+                      <MapPin size={12} className="me-1" />
+                      {usuario.ciudad}, {usuario.provincia}, {usuario.pais}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -270,6 +426,100 @@ export const SidebarUsuario: React.FC<SidebarUsuarioProps> = ({
                       <p className="empty-text">Aún no tienes favoritos</p>
                       <small className="empty-subtext">
                         Marca proyectos como favoritos para verlos aquí
+                      </small>
+                    </div>
+                  )
+                )}
+              </div>
+
+              {/* Recommendations Section */}
+              <div className="recommendations-section">
+                <div className="section-header">
+                  <MapPin size={20} className="section-icon" />
+                  <h6 className="section-title">Recomendaciones Cercanas</h6>
+                  {recomendaciones.length > 0 && (
+                    <span className="recommendations-count">
+                      {recomendaciones.length}
+                    </span>
+                  )}
+                </div>
+
+                {/* Debug info */}
+                {usuario && (
+                  <div
+                    className="debug-info"
+                    style={{
+                      fontSize: "12px",
+                      color: "#666",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <p>
+                      Ubicación: {usuario.pais || "N/A"} -{" "}
+                      {usuario.provincia || "N/A"} - {usuario.ciudad || "N/A"}
+                    </p>
+                    <p>
+                      Estado:{" "}
+                      {loadingRecomendaciones
+                        ? "Cargando..."
+                        : `${recomendaciones.length} recomendaciones`}
+                    </p>
+                  </div>
+                )}
+
+                {loadingRecomendaciones && (
+                  <div className="loading-message">
+                    <Loader2 size={16} className="spinner me-2" />
+                    Cargando recomendaciones...
+                  </div>
+                )}
+
+                {recomendaciones.length > 0 ? (
+                  <div className="recommendations-list">
+                    {recomendaciones.map((recomendacion) => (
+                      <div
+                        key={recomendacion.id}
+                        className="recommendation-item"
+                      >
+                        <div className="recommendation-content">
+                          <div className="recommendation-header">
+                            <h6 className="recommendation-name">
+                              {recomendacion.nombre}
+                            </h6>
+                            <div className="recommendation-rating">
+                              {renderStars(recomendacion.rating)}
+                              <span className="rating-value">
+                                ({recomendacion.rating})
+                              </span>
+                            </div>
+                          </div>
+                          <p className="recommendation-type">
+                            {recomendacion.tipo}
+                          </p>
+                          <p className="recommendation-address">
+                            <MapPin size={12} className="me-1" />
+                            {recomendacion.direccion}
+                          </p>
+                          {recomendacion.distancia && (
+                            <p className="recommendation-distance">
+                              📍 {recomendacion.distancia}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  !loadingRecomendaciones && (
+                    <div className="empty-recommendations">
+                      <MapPin size={32} className="empty-icon" />
+                      <p className="empty-text">
+                        No hay recomendaciones disponibles
+                      </p>
+                      <small className="empty-subtext">
+                        {!usuario.pais || !usuario.provincia || !usuario.ciudad
+                          ? "Completa tu dirección en el perfil para ver recomendaciones"
+                          : "No encontramos lugares recomendados en tu zona"}
                       </small>
                     </div>
                   )

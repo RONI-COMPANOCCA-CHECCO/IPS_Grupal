@@ -16,6 +16,7 @@ import uuid
 from rest_framework.authentication import TokenAuthentication
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
+from django.db.models import Q
 
 class ProyectoListCreate(generics.ListCreateAPIView):
     serializer_class = ProyectoSerializer
@@ -50,8 +51,12 @@ class ProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
 class UsuarioListCreate(generics.ListCreateAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    authentication_classes = [TokenAuthentication]  # 🔑 Agregar autenticación
-    permission_classes = [IsAuthenticated]          # 🔒 Agregar permisos
+    authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 class NotificacionListCreate(generics.ListCreateAPIView):
     queryset = Notificacion.objects.all()
@@ -60,12 +65,9 @@ class NotificacionListCreate(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]          # 🔒 Agregar permisos
 
 class LoginAPIView(APIView):
-    # 🔓 Sin autenticación para login
     permission_classes = [AllowAny]
     
     def post(self, request):
-        print(">>> Entrando al login")
-
         correo = request.data.get('correo')
         contrasena = request.data.get('contrasena')
 
@@ -76,25 +78,20 @@ class LoginAPIView(APIView):
             usuario = Usuario.objects.get(correo=correo)
         except Usuario.DoesNotExist:
             return Response({'error': 'Usuario no encontrado'}, status=404)
-        
-        print("Correo:", correo)
-        print("Contraseña recibida:", contrasena)
-        print("Usuario encontrado:", usuario)
-        print("Password match:", usuario.check_password(contrasena))
 
         if not usuario.check_password(contrasena):
             return Response({'error': 'Contraseña incorrecta'}, status=401)
 
         token, _ = Token.objects.get_or_create(user=usuario)
 
+        # ✅ Aquí usamos el serializer
+        usuario_serializado = UsuarioSerializer(usuario)
+
         return Response({
             'token': token.key,
-            'usuario': {
-                'id': usuario.id,
-                'correo': usuario.correo,
-                'nombre': usuario.nombre_completo,
-            }
+            'usuario': usuario_serializado.data
         })
+
 
 class FavoritoDeleteView(APIView):
     authentication_classes = [TokenAuthentication]  # 🔑 Agregar autenticación
@@ -164,3 +161,41 @@ class FavoritoViewSet(viewsets.ModelViewSet):
         """Asignar automáticamente el usuario autenticado al crear favorito"""
         print("Usuario autenticado:", self.request.user)
         serializer.save(usuario=self.request.user)
+
+class RecomendacionesAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        pais = request.query_params.get("pais")
+        provincia = request.query_params.get("provincia")
+        ciudad = request.query_params.get("ciudad")
+
+        q_filter = Q()
+
+        if pais:
+            q_filter |= Q(departamento__icontains=pais)
+        if provincia:
+            q_filter |= Q(provincia__icontains=provincia)
+        if ciudad:
+            q_filter |= Q(distrito__icontains=ciudad)
+
+        if not q_filter:
+            return Response([], status=status.HTTP_200_OK)
+
+        proyectos = Proyecto.objects.filter(q_filter)
+
+        data = [
+            {
+                "id": p.id,
+                "nombre": p.nombre,
+                "tipo": p.tipo,
+                "direccion": f"{p.distrito}, {p.provincia}",
+                "rating": 4.2,
+                "distancia": None,
+                "imagen": None,
+            }
+            for p in proyectos[:10]
+        ]
+
+        return Response(data)

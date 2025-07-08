@@ -1,0 +1,20 @@
+FROM python:3.11
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Nos movemos al subdirectorio correcto
+WORKDIR /proyecto
+
+# Copiamos solo el código necesario del backend
+COPY . /proyecto
+
+# Entramos al subdirectorio donde está manage.py
+WORKDIR /proyecto/viviendas
+
+# Instalamos dependencias (asegúrate que el requirements.txt esté en /proyecto/)
+RUN pip install --upgrade pip && pip install -r ../requirements.txt
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

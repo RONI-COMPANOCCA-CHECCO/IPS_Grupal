@@ -115,6 +115,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 # STATICFILES_DIRS = []  # Sin carpeta estática adicional (evitamos warning)
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # ────────────────────
 # Clave primaria automática

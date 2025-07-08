@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import LoginAPIView, FavoritoDeleteView
+from .views import LoginAPIView, FavoritoDeleteView, RecomendacionesAPIView
 
 # Configurar el router para el ViewSet
 router = DefaultRouter()
@@ -28,4 +28,6 @@ urlpatterns = [
     
     # 🗑️ OPCIONAL: Puedes mantener esta ruta o usar la del ViewSet
     path("api/eliminar-favorito/", FavoritoDeleteView.as_view(), name="favorito-eliminar"),
+    path("api/recomendaciones/", RecomendacionesAPIView.as_view(), name="recomendaciones"),
+
 ]
